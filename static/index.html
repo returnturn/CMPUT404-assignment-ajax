@@ -37,9 +37,12 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
     xhr.onreadystatechange = function () {
         if (xhr.readyState==4) {
             try {
-                if (xhr.status==200) {
+                if (xhr.status==200 ) {
                     //XXX: parse some JSON from the request!
                     //XXX: Pass the data to the callback!
+                    if(callback){
+                        callback(JSON.parse(xhr.responseText));
+                    }
                 }
             } 
             catch(e) {
@@ -50,6 +53,10 @@ function sendJSONXMLHTTPRequest(url, objects, callback) {
     //XXX: POST to a URL
     //XXX: set the mimetype and the accept headers!
     // Remember to use application/json !
+    xhr.open("POST", url);
+    xhr.setRequestHeader('Content-type', 'application/json');
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.send(JSON.stringify(objects));
 }
 
 
@@ -65,9 +72,10 @@ function drawCircle(context,entity) {
         //moveTo(x,y);
         pokemon = ["pokeball.png", "greatball.png","masterball.png"]
         var pokeball = new Image();
-        var num=Math.random();
-        if(num<0.01) pokeball.src = pokemon[2];
-        else if(num<0.1) pokeball.src = pokemon[1];
+        var num = new Date().getTime() / 1000;
+        num%=10;
+        if(num<3) pokeball.src = pokemon[1];
+        else if(num<5) pokeball.src = pokemon[2];
         else pokeball.src = pokemon[0];
         drawImage(pokeball, x, y);                          
     }
@@ -97,6 +105,7 @@ function renderFrame() {
     clearFrame();
     for (var key in world) {
         var entity = world[key];
+        
         drawCircle(context,prepEntity(entity));
     }
 }
@@ -112,6 +121,7 @@ function drawNextFrame() {
 // the canvas
 function drawFrame() {
     if (drawNext) {
+        num=Math.random();
         renderFrame();
         drawNext = false;
     }
@@ -139,9 +149,9 @@ function getPosition(e) {
 
 function addEntity(entity, data) {
     world[entity] = data;
-    drawNextFrame(); // (but should we?)
+    //drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just  modified!
-
+    sendJSONXMLHTTPRequest('/entity/'+entity, data, null);
 }
 
 var counter = 0;
@@ -265,11 +275,15 @@ mouse.mousedraggers.push(function(x,y,clicked,e) {
 
 function update() {
     //XXX: TODO Get the world from the webservice using a XMLHTTPRequest
+    sendJSONXMLHTTPRequest('/world', null, function(next){
+        world = next;
+        drawNextFrame();
+    });
     drawFrame();
 }
 
 // 30 frames per second
-setInterval( update, 1000/60.0);
+setInterval( update, 1000/30.0);
 
 
 
