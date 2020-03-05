@@ -63,17 +63,20 @@ function drawCircle(context,entity) {
         var x = entity["x"];
         var y = entity["y"];
         //moveTo(x,y);
-        fillStyle = entity["colour"];
-        strokeStyle = fillStyle;
-        arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
-        stroke();                                
+        pokemon = ["pokeball.png", "greatball.png","masterball.png"]
+        var pokeball = new Image();
+        var num=Math.random();
+        if(num<0.01) pokeball.src = pokemon[2];
+        else if(num<0.1) pokeball.src = pokemon[1];
+        else pokeball.src = pokemon[0];
+        drawImage(pokeball, x, y);                          
     }
 }
 
 function prepEntity(entity) {
-    if (!entity["colour"]) {
-        entity["colour"] = "#FF0000";
-    }
+    //var choose_colors = ["Red", "Orange", "Yellow", "Green", "Blue", "Indigo", "Violet"]
+    //entity["colour"] = choose_colors[Math.floor(Math.random() * Math.floor(6))];
+
     if (!entity["radius"]) {
         entity["radius"] = 50;
     }
@@ -247,15 +250,15 @@ mouse = (function() {
 // Add the application specific mouse listeners!
 //XXX: TODO Make these prettier!
 mouse.mousedowners.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'blue'});
+    addEntityWithoutName({'x':x,'y':y,'image':'pokeball'});
 });
 
 mouse.mouseuppers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'red'});
+    addEntityWithoutName({'x':x,'y':y,'image':'pokeball'});
 });
 
 mouse.mousedraggers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'green',
+    addEntityWithoutName({'x':x,'y':y,'image':'pokeball',
                           'radius':10});
 });
 
@@ -266,7 +269,7 @@ function update() {
 }
 
 // 30 frames per second
-setInterval( update, 1000/30.0);
+setInterval( update, 1000/60.0);
 
 
 
